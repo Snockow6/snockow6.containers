@@ -1,0 +1,11 @@
+---
+#dockerStorage: /mnt/Docker
+#lancacheIP: 192.168.30.3
+#containers: 
+  #- portainer
+  #- jellyfin
+  #- netbootxyz
+  #- lancache
+  #- nextcloud
+  #- Sonarr
+  #- heimdall
