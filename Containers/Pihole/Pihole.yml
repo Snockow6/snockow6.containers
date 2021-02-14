@@ -1,0 +1,49 @@
+---
+- name: Make "{{ item }}" Systemd service
+  copy:
+    dest: "/etc/systemd/system/{{ item }}.service"
+    content: |
+      [Unit]
+      Description=Run {{ item }}
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      ExecStartPre=-/usr/bin/podman kill {{ item }}
+      ExecStartPre=-/usr/bin/podman rm {{ item }}
+      ExecStartPre=-/usr/bin/podman pull docker.io/pihole/pihole:latest
+      ExecStart=/usr/bin/podman run \
+      --name {{ item }} \
+      -v {{ ContainerConfigs }}/{{ item }}/etc-pihole/:/etc/pihole/ \
+      -v {{ ContainerData }}/{{ item }}/etc-dnsmasq.d/:/etc/dnsmasq.d/ \
+      -e TZ={{ TimeZone }} \
+      -p {{ PiholeIP }}:53:53/tcp \
+      -p {{ PiholeIP }}:53:53/udp \
+      -p {{ PiholeIP }}:80:80/tcp \
+      -p {{ PiholeIP }}:443:443/tcp \
+      docker.io/pihole/pihole:latest
+
+      ExecStop=/usr/bin/podman stop {{ item }}
+
+      [Install]
+      WantedBy=multi-user.target
+  register: Pihole_State
+
+- name: reload systemd
+  command: >-
+    systemctl daemon-reload
+  when: Pihole_State.changed == true
+
+- name: restart "{{ item }}" service if changed
+  ansible.builtin.systemd:
+    state: restarted
+    enabled: yes
+    name: "{{ item }}"
+  when: Pihole_State.changed == true
+
+- name: Start "{{ item }}" service
+  ansible.builtin.systemd:
+    state: started
+    enabled: yes
+    name: "{{ item }}"
+  when: Pihole_State.changed == false

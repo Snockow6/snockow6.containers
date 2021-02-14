@@ -1,0 +1,50 @@
+---
+- name: Make "{{ item }}" Systemd service
+  copy:
+    dest: "/etc/systemd/system/{{ item }}.service"
+    content: |
+      [Unit]
+      Description=Run {{ item }}
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      ExecStartPre=-/usr/bin/podman kill {{ item }}
+      ExecStartPre=-/usr/bin/podman rm {{ item }}
+      ExecStartPre=-/usr/bin/podman pull ghcr.io/linuxserver/airsonic
+      ExecStart=/usr/bin/podman run \
+      --name {{ item }} \
+      -e PUID={{ UserID }} \
+      -e PGID={{ UserID }} \
+      --device /dev/snd:/dev/snd \
+      --volume {{ ContainerConfigs }}/{{ item }}:/config:z \
+      --volume /Tank/shares/Music:/music:z \
+      --volume {{ ContainerData }}/{{ item }}/playlists:/playlists:z \
+      --volume {{ ContainerData }}/{{ item }}/podcasts:/podcasts:z \
+      -p 4040:4040 \
+      ghcr.io/linuxserver/airsonic
+
+      ExecStop=/usr/bin/podman stop {{ item }}
+
+      [Install]
+      WantedBy=multi-user.target
+  register: Airsonic_State
+
+- name: reload systemd
+  command: >-
+    systemctl daemon-reload
+  when: Airsonic_State.changed == true
+
+- name: restart "{{ item }}" service if changed
+  ansible.builtin.systemd:
+    state: restarted
+    enabled: yes
+    name: "{{ item }}"
+  when: Airsonic_State.changed == true
+
+- name: Start "{{ item }}" service
+  ansible.builtin.systemd:
+    state: started
+    enabled: yes
+    name: "{{ item }}"
+  when: Airsonic_State.changed == false
