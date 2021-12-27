@@ -3,5 +3,5 @@
   include: Podman_Install.yml
 
 - name: deploy containers
-  loop: "{{ PodmanContainers }}"
+  loop: "{{ Containers }}"
   include_tasks: "Containers/{{ item }}/{{ item }}.yml"
