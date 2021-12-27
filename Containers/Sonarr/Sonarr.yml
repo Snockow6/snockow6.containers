@@ -1,0 +1,35 @@
+---
+- name: Create {{ item }} Podman Container
+  containers.podman.podman_container:
+    name: "{{ item }}"
+    image: ghcr.io/linuxserver/sonarr:latest
+    ports:
+      - 8989:8989
+    env:
+      PUID="{{ UserID }}"
+      PGID="{{ UserID }}"
+      TZ="{{ TimeZone }}"
+    volume:
+      - "/{{ ContainerData }}/{{ item }}/Config:/config:rw" #Z locks to only this container
+      - "/{{ ContainerData }}/Transmission/Downloads:/downloads:rw" #z Share with any Container
+      - "{{ Anime }}:/Anime:rw"
+  register: state
+
+- name: Make {{ item }} Systemd service
+  shell: cd /etc/systemd/system/ && podman generate systemd --files --name {{ item }}
+  when: state.changed == true
+
+- name: restart {{ item }} service if change
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+    name: "container-{{ item }}"
+  when: state.changed == true
+
+- name: Start {{ item }} service
+  ansible.builtin.systemd:
+    state: started
+    enabled: yes
+    name: "container-{{ item }}"
+  when: state.changed == false

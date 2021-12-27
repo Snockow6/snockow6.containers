@@ -1,11 +1,54 @@
 ---
-#dockerStorage: /mnt/Docker
-#lancacheIP: 192.168.30.3
-#containers: 
-  #- portainer
-  #- jellyfin
-  #- netbootxyz
-  #- lancache
-  #- nextcloud
-  #- Sonarr
-  #- heimdall
+## Container data/config locations. {{ Containername }}/config
+ContainerData: /Guardian/Containers
+
+Containers:
+  #- Letsencrypt
+  #- Jellyfin
+  #- Netbootxyz
+  #- Heimdall
+  #- Matrix
+  #- Pihole
+  #- Netdata
+  - Gitea
+  - Jackett
+  #- Qbittorrent
+  - Transmission
+  #- Wordpress
+  - Sonarr
+  #- Podget
+  #- Lancache
+  #- Nextcloud
+  #- VSCode
+  #- Netbox-community
+  #- Gitlab
+
+#Linuxserver.io container vars
+UserID: 101009 # abc user
+GroupID: 101009 # serverio group
+TimeZone: Pacific/Auckland
+
+#Lancache vars
+lancacheIP: "192.168.10.2"
+
+#Pihole vars
+PiholeIP: "192.168.10.6"
+
+#Jellyfin vars
+#Youtubevids: "/mnt/Gamma/YoutubeVids"
+#Podcasts: "/mnt/Gamma/Podcasts"
+#Music: "/mnt/Gamma/Music"
+
+#Sonarr vars
+Anime: "/Guardian/Glusterfs/Anime"
+#Tvshows: "/nfs/Tvshows"
+Sonarr_User: localadmin
+Sonarr_Password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33323634386266326236323537636232636233303730346662303164346133653731323962336261
+          6134343666393234393235373662316365363864663135350a646232653334316239383430326166
+          37653234613061313030393536363934386630306563383030356165323234383966643166363364
+          3964646236343836340a343930346666666134643833333736663437396537396464373332336662
+          6263
+
+
