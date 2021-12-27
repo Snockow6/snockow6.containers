@@ -6,12 +6,3 @@
   when: ansible_os_family == "RedHat"
 
 
-- name: Add podman repository
-  ansible.builtin.apt_repository:
-    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /
-    state: present
-
-- name: Add podman repository key
-  ansible.builtin.apt_key:
-    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key
-    state: present

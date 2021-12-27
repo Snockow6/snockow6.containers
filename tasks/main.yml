@@ -1,7 +1,6 @@
 ---
 - name: Install Podman
   include: Podman_Install.yml
-  when: Container_Runner == "Podman"
 
 - name: deploy containers
   loop: "{{ PodmanContainers }}"
