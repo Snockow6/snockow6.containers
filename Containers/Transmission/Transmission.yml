@@ -11,8 +11,8 @@
       PUID="{{ UserID }}"
       PGID="{{ UserID }}"
       TZ="{{ TimeZone }}"
-      USER="{{ Sonarr_User }}"
-      PASS="{{ Sonarr_Password }}"
+      USER="{{ Transmission_User }}"
+      PASS="{{ Transmission_Password }}"
     volume:
       - "/{{ ContainerData }}/{{ item }}/Config:/config:rw"
       - "/{{ ContainerData }}/{{ item }}/Downloads:/downloads:rw"
