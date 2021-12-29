@@ -47,4 +47,5 @@ Anime: "/Guardian/Glusterfs/Anime"
 Transmission_User: 
 Transmission_Password: 
 
-
+#Gitea vars
+Gitea_Password: 
