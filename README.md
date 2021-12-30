@@ -1,22 +1,56 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role creates containers using podman.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Required Collections
+- containers.podman
 
 Role Variables
 --------------
 
+## Container data/config locations. {{ Containername }}/config
+ContainerData: /Guardian/Containers
+
+Containers:
+  - Gitea
+  - Jackett
+  - Transmission
+  - Sonarr
+
+#Linuxserver.io container vars
+UserID: 101009 # abc user
+GroupID: 101009 # serverio group
+TimeZone: Pacific/Auckland
+
+#Lancache vars
+lancacheIP: "192.168.10.2"
+
+#Pihole vars
+PiholeIP: "192.168.10.6"
+
+#Jellyfin vars
+Youtubevids: "/mnt/Gamma/YoutubeVids"
+Podcasts: "/mnt/Gamma/Podcasts"
+Music: "/mnt/Gamma/Music"
+
+#Sonarr vars
+Anime: "/Guardian/Glusterfs/Anime"
+Tvshows: "/nfs/Tvshows"
+
+#Transmission vars
+Transmission_User:
+Transmission_Password:
+
+#Gitea vars
+Gitea_Password:
+
+
 A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
 Example Playbook
 ----------------
@@ -25,14 +59,9 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - snockow6.containers
 
 License
 -------
 
 BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
