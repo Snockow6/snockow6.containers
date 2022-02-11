@@ -19,7 +19,7 @@
       USER_UID="{{ UserID }}"
       USER_GID="{{ GroupID }}"
       GITEA__database__DB_TYPE=mysql
-      GITEA__database__HOST="{{ item }}_db:3306"
+      GITEA__database__HOST="localhost:3306"
       GITEA__database__NAME="{{ item }}"
       GITEA__database__USER="{{ item }}"
       GITEA__database__PASSWD="{{ Gitea_Password }}"
@@ -42,6 +42,12 @@
 - name: Make {{ item }} Systemd service
   shell: cd /etc/systemd/system && podman generate systemd --files --name {{ item }}
   when: state.changed == true
+
+- name: Pause for 10 seconds to start app
+  pause:
+    seconds: 10
+  when: state.changed == true
+
 
 - name: restart {{ item }} service if change
   ansible.builtin.systemd:
