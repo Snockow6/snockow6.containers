@@ -27,6 +27,12 @@
   shell: cd /etc/systemd/system && podman generate systemd --files --name {{ item }}
   when: state.changed == true
 
+- name: Pause for 10 seconds to start app
+  pause:
+    seconds: 10
+  when: state.changed == true
+
+
 - name: restart {{ item }} service if change
   ansible.builtin.systemd:
     state: restarted

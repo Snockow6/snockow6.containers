@@ -35,6 +35,12 @@
     systemctl daemon-reload
   when: Airsonic_State.changed == true
 
+- name: Pause for 10 seconds to start app
+  pause:
+    seconds: 10
+  when: state.changed == true
+
+
 - name: restart "{{ item }}" service if changed
   ansible.builtin.systemd:
     state: restarted
