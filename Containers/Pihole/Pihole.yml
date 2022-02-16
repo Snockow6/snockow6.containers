@@ -1,55 +1,62 @@
 ---
+- name: Pull an image {{ item }}
+  containers.podman.podman_image:
+    name: docker.io/pihole/pihole:latest
+
 - name: Make "{{ item }}" Systemd service
   copy:
-    dest: "/etc/systemd/system/{{ item }}.service"
+    dest: "/etc/systemd/system/container-{{ item }}.service"
     content: |
       [Unit]
-      Description=Run {{ item }}
+      Description={{ item }} container
       After=network-online.target
       Wants=network-online.target
 
       [Service]
+      TimeoutStartSec=0
       ExecStartPre=-/usr/bin/podman kill {{ item }}
       ExecStartPre=-/usr/bin/podman rm {{ item }}
       ExecStartPre=-/usr/bin/podman pull docker.io/pihole/pihole:latest
       ExecStart=/usr/bin/podman run \
       --name {{ item }} \
-      -v {{ ContainerConfigs }}/{{ item }}/etc-pihole/:/etc/pihole/ \
-      -v {{ ContainerData }}/{{ item }}/etc-dnsmasq.d/:/etc/dnsmasq.d/ \
+      --cap-add=NET_ADMIN \
+      -e DNSSEC=true \
+      -e CONDITIONAL_FORWARDING=true \
+      -e CONDITIONAL_FORWARDING_IP=192.168.10.254 \
+      -e CONDITIONAL_FORWARDING_DOMAIN=shed.lan \
+      -v {{ ContainerData }}/{{ item }}/config/:/etc/pihole/ \
+      -v {{ ContainerData }}/{{ item }}/dnsmasq/:/etc/dnsmasq.d/ \
       -e TZ={{ TimeZone }} \
-      -p {{ PiholeIP }}:53:53/tcp \
-      -p {{ PiholeIP }}:53:53/udp \
-      -p {{ PiholeIP }}:80:80/tcp \
-      -p {{ PiholeIP }}:443:443/tcp \
+      --net=host \
       docker.io/pihole/pihole:latest
 
       ExecStop=/usr/bin/podman stop {{ item }}
 
       [Install]
       WantedBy=multi-user.target
-  register: Pihole_State
+  register: State
 
 - name: reload systemd
   command: >-
     systemctl daemon-reload
-  when: Pihole_State.changed == true
+  when: State.changed == true
+
 
 - name: Pause for 10 seconds to start app
   pause:
     seconds: 10
-  when: state.changed == true
-
+  when: State.changed == true
 
 - name: restart "{{ item }}" service if changed
   ansible.builtin.systemd:
     state: restarted
     enabled: yes
-    name: "{{ item }}"
-  when: Pihole_State.changed == true
+    name: "container-{{ item }}"
+  when: State.changed == true
 
 - name: Start "{{ item }}" service
   ansible.builtin.systemd:
     state: started
     enabled: yes
-    name: "{{ item }}"
-  when: Pihole_State.changed == false
+    name: "container-{{ item }}"
+  when: State.changed == false
