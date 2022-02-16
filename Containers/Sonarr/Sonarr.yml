@@ -1,4 +1,8 @@
 ---
+- name: Pull an image {{ item }}
+  containers.podman.podman_image:
+    name: ghcr.io/linuxserver/sonarr:latest
+
 - name: Create {{ item }} Podman Container
   containers.podman.podman_container:
     name: "{{ item }}"
